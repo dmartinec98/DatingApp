@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { error } from 'protractor';
 import { Observable } from 'rxjs';
+import { DateInputComponent } from '../_forms/date-input/date-input.component';
 import { User } from '../_models/user';
 import { AccountService } from '../_services/account.service';
 

@@ -1,7 +1,10 @@
-import { HttpClient} from '@angular/common/http';
+import { HttpClient, HttpParams} from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { map } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { Member } from '../_models/member';
+import { PaginatedResult } from '../_models/pagination';
+import { UserParams } from '../_models/userParams';
 
 
 @Injectable({
@@ -9,12 +12,20 @@ import { Member } from '../_models/member';
 })
 export class MembersService {
   baseUrl= environment.apiUrl;
+  
 
 
   constructor(private http:HttpClient) { }
 
-  getMembers() {
-    return this.http.get<Member[]>(this.baseUrl+'users');
+  getMembers(userParams: UserParams) {
+    let params = this.getPaginationHeaders(userParams.pageNumber,userParams.pageSize);
+
+    params = params.append('minAge', userParams.minAge.toString());
+    params = params.append('maxAge', userParams.maxAge.toString());
+    params = params.append('gender', userParams.gender);
+    params = params.append('orderBy', userParams.orderBy);
+
+    return this.getPaginatedResult<Member[]>(this.baseUrl + 'users', params);
   }
 
   getMember(username: string) {
@@ -30,5 +41,27 @@ export class MembersService {
   }
   deletePhoto(photoId: number) {
     return this.http.delete(this.baseUrl + 'users/delete-photo/' + photoId);
+  }
+
+  private getPaginatedResult<T>(url, params) {
+    const paginatedResult: PaginatedResult<T> = new PaginatedResult<T> ();
+    return this.http.get<T>(url, { observe: 'response', params }).pipe(
+      map(response => {
+        paginatedResult.result = response.body;
+        if (response.headers.get('pagination') !== null) {
+          paginatedResult.pagination = JSON.parse(response.headers.get('pagination'));
+        }
+        return paginatedResult;
+      })
+    );
+  }
+
+  private getPaginationHeaders(pageNumber: number, pageSize: number) {
+    let params= new HttpParams();
+
+    params = params.append('pageNumber', pageNumber.toString());
+    params = params.append('pageSize', pageSize.toString());
+
+    return params;
   }
 }
