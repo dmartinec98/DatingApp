@@ -3,9 +3,11 @@ import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { error } from 'protractor';
 import { Observable } from 'rxjs';
+import { MemberListComponent } from '../members/member-list/member-list.component';
 import { DateInputComponent } from '../_forms/date-input/date-input.component';
 import { User } from '../_models/user';
 import { AccountService } from '../_services/account.service';
+import { MembersService } from '../_services/members.service';
 
 @Component({
   selector: 'app-nav',
@@ -24,8 +26,7 @@ export class NavComponent implements OnInit {
 
   login(){
     this.accountService.login(this.model).subscribe(response => {
-      this.router.navigateByUrl('/members');
-      console.log(response);
+      this.router.navigateByUrl('/members');   
     });
   }
 
